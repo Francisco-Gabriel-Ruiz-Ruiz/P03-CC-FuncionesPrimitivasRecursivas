@@ -13,6 +13,7 @@
 
 #include "../include/multiplication-function.h"
 
+#include <iostream>
 #include <stdexcept>
 
 MultiplicationFunction::MultiplicationFunction() {
@@ -33,7 +34,8 @@ MultiplicationFunction::MultiplicationFunction() {
 }
 
 Natural MultiplicationFunction::Evaluar(const std::vector<Natural>& args) {
-  RegistrarLlamada();
+  //RegistrarLlamada();
+  std::cout << "MultiplicationFunction";
   if (args.size() != Aridad()) {
     throw std::invalid_argument("MultiplicationFunction requiere exactamente 2 argumentos (x, y).");
   }

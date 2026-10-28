@@ -14,6 +14,7 @@
 #include "../include/power-function.h"
 #include "../include/multiplication-function.h"
 
+#include <iostream>
 #include <stdexcept>
 
 PowerFunction::PowerFunction() {
@@ -37,7 +38,8 @@ PowerFunction::PowerFunction() {
 }
 
 Natural PowerFunction::Evaluar(const std::vector<Natural>& args) {
-  RegistrarLlamada();
+  //RegistrarLlamada();
+  std::cout << "PowerFunction";
   if (args.size() != Aridad()) {
     throw std::invalid_argument("PowerFunction requiere 2 argumentos: (base, exponente).");
   }
