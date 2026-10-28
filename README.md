@@ -1,108 +1,124 @@
 # Práctica 3: Implementación de Funciones Primitivas Recursivas de Números Naturales
 
-
-
-Universidad de La Laguna
-
-Escuela Superior de Ingeniería y Tecnología
-
-Grado en Ingeniería Informática
-
-**Complejidad Computacional (Curso 2026-2027)**
-
-Alumno: Francisco Gabriel Ruiz Ruiz
+Universidad de La Laguna  
+Escuela Superior de Ingeniería y Tecnología  
+Grado en Ingeniería Informática  
+**Complejidad Computacional (Curso 2026-2027)**  
+Alumno: Francisco Gabriel Ruiz Ruiz  
 
 ## Descripción del Proyecto
 
-Este proyecto consiste en el desarrollo en **C++** de un sistema formal para la definición, combinación y evaluación de **Funciones Primitivas Recursivas (FPR)** sobre el conjunto de los números naturales ($\mathbb{N}$) aplicando un diseño orientado a objetos. El objetivo central del programa es calcular la función matemática de la **potencia** ($x^y$) de forma constructiva a partir de las funciones primitivas básicas (Cero, Sucesor y Proyecciones) y los esquemas de combinación, composición y recursión primitiva.
+Este proyecto consiste en el desarrollo en **C++** de un sistema formal para la definición, combinación y evaluación de **Funciones Primitivas Recursivas (FPR)** sobre el conjunto de los números naturales ($\mathbb{N}$) aplicando un diseño orientado a objetos. El objetivo central del programa es calcular la función matemática de la **potencia** ($x^y$) de forma constructiva a partir de las funciones primitivas iniciales (Cero, Sucesor y Proyecciones) y los esquemas de combinación/composición y recursión primitiva.
 
-El programa permite recibir los valores naturales de la base ($x$) y el exponente ($y$) tanto mediante argumentos por línea de comandos como de forma interactiva por teclado, mostrando como salida el resultado final obtenido y el cómputo exhaustivo del número de llamadas a funciones efectuadas a lo largo de toda la derivación recursiva.
+El programa permite recibir los valores naturales de la base ($x$) y el exponente ($y$) mediante argumentos por línea de comandos o de forma interactiva por teclado, mostrando como salida el resultado final obtenido y el cómputo exhaustivo de las llamadas a funciones primitivas recursivas realizadas a lo largo de toda la derivación.
 
 ### Fundamento Teórico y Esquemas Formales
 
-Conforme a las definiciones formales explicadas en clase, la arquitectura se fundamenta en:
+Conforme a las definiciones formales de la teoría de la computabilidad, la arquitectura se fundamenta en:
 
-* **Funciones Básicas Predefinidas:**
-* **Cero:** $Z(x) = 0$
+* **Funciones Básicas Iniciales:**
+  * **Cero:** $Z(x) = 0$
+  * **Sucesor:** $S(x) = x + 1$
+  * **Proyecciones:** $P_i^n(x_1, \dots, x_n) = x_i$, para $1 \le i \le n$
 
-
-* **Sucesor:** $S(x) = x + 1$
-
-
-* **Proyecciones:** $P_i^n(x_1, \dots, x_n) = x_i$, para $1 \le i \le n$
-
-
-
-
-* **Operadores Constructores:**
-* **Composición / Combinación:** Dados $g: \mathbb{N}^m \to \mathbb{N}$ y $h_1, \dots, h_m: \mathbb{N}^k \to \mathbb{N}$, se define $f(\vec{x}) = g(h_1(\vec{x}), \dots, h_m(\vec{x}))$.
-
-
-* **Recursión Primitiva:** Siguiendo la convención formal donde la **última variable es la de recursión** ($y$):
-
-
-* Ecuación límite (caso base): $f(\vec{x}, 0) = g(\vec{x})$
-
-
-* Paso recursivo: $f(\vec{x}, S(y)) = h(\vec{x}, y, f(\vec{x}, y))$
-
-
-
-
-
+* **Operadores de Clausura:**
+  * **Composición / Combinación:** Dados $g: \mathbb{N}^m \to \mathbb{N}$ y $h_1, \dots, h_m: \mathbb{N}^k \to \mathbb{N}$, se define:
+    $$f(\vec{x}) = g(h_1(\vec{x}), \dots, h_m(\vec{x}))$$
+  * **Recursión Primitiva:** Siguiendo la convención formal donde la **última variable es la de recursión** ($y$):
+    * Ecuación límite (caso base): $f(\vec{x}, 0) = g(\vec{x})$
+    * Paso inductivo: $f(\vec{x}, S(y)) = h(\vec{x}, y, f(\vec{x}, y))$
 
 * **Cadena de Derivación Formal hasta la Potencia:**
-1. **Suma:** $\text{suma}(x, y) = x + y$
+  1. **Suma:** $\text{suma}(x, y) = x + y$
+     * $\text{suma}(x, 0) = g(x) = P_1^1(x)$
+     * $\text{suma}(x, S(y)) = h(x, y, \text{suma}(x, y)) = S \circ P_3^3(x, y, \text{suma}(x, y))$
+  2. **Multiplicación:** $\text{mult}(x, y) = x \cdot y$
+     * $\text{mult}(x, 0) = g(x) = Z(x) = 0$
+     * $\text{mult}(x, S(y)) = h(x, y, \text{mult}(x, y)) = \text{suma} \circ (P_1^3 \times P_3^3)(x, y, \text{mult}(x, y))$
+  3. **Potencia:** $\text{potencia}(x, y) = x^y$
+     * $\text{potencia}(x, 0) = g(x) = S \circ Z(x)$
+     * $\text{potencia}(x, S(y)) = h(x, y, \text{potencia}(x, y)) = \text{mult} \circ (P_1^3 \times P_3^3)(x, y, \text{potencia}(x, y))$
 
+## Arquitectura y Modelo de Conteo de Llamadas
 
-* $\text{suma}(x, 0) = g(x) = P_1^1(x)$
+### Criterio de Registro de Llamadas
+Para que el cómputo de llamadas a funciones coincida con la teoría matemática formal y evite duplicados innecesarios:
+1. **El conteo se centraliza en `PrimitiveRecursionFunction`:** En el formalismo matemático, el objeto que define y ejecuta las ecuaciones de recursión ($f(\vec{x}, y)$ y la llamada interna recursiva $f(\vec{x}, y-1)$) **es** la función primitiva recursiva. Por ello, `RegistrarLlamada()` se invoca al inicio de `PrimitiveRecursionFunction::Evaluar()`.
+2. **Las clases `PowerFunction`, `MultiplicationFunction` y `SumFunction` actúan como fachadas (*wrappers*):** Estas clases únicamente configuran el grafo funcional en su constructor y delegan la ejecución a su puntero interno `shared_ptr<PrimitiveRecursiveFunction>`. Por ende, no registran llamadas adicionales en su método `Evaluar()`, evitando duplicar el conteo sobre la misma invocación matemática.
+3. **Funciones iniciales y composición:** `ZeroFunction`, `SuccessorFunction`, `ProjectionFunction` y `CompositionFunction` registran cada una su correspondiente llamada al ser evaluadas.
 
+## Justificación y Trazas Formales de Conteo
 
-* $\text{suma}(x, S(y)) = h(x, y, \text{suma}(x, y)) = S(P_3^3(x, y, \text{suma}(x, y)))$
+Siguiendo la notación manuscrita desarrollada durante el análisis de la práctica, se detallan las derivaciones formales paso a paso para verificar el conteo exacto de llamadas.
 
+*Nota: para poder ver los mensajes que emite el programa similar a los detallados a continuación, se puede descomentar los std::couts en los ficheros `multiplication-function.cc`, `power-function.cc`. `primitive-recursive-function.cc` y `sum-function.cc`.*
 
+### 1. Traza para `potencia(2, 0)` -> 4 Llamadas
 
+Definición formal:
 
-2. **Multiplicación:** $\text{mult}(x, y) = x \cdot y$
-* $\text{mult}(x, 0) = g(x) = Z(x) = 0$
-* $\text{mult}(x, S(y)) = h(x, y, \text{mult}(x, y)) = \text{suma}(P_1^3, P_3^3)(x, y, \text{mult}(x, y))$
+```text
+         1                      4  2  3
+         ↓                      ↓  ↓  ↓
+        power(2, 0) = g(2)  =   S  ∘  Z(2)
 
+```
 
-3. **Constante Uno:** $\text{uno}(x) = S(Z(x)) = 1$
+* **Llamada 1:** `PowerFunction -> PrimitiveRecursionFunction` sobre `(2, 0)`. Al ser $y = 0$, se dirige inmediatamente a la ecuación límite $g(2)$.
+* **Llamada 2:** `CompositionFunction` asociada al caso base $\text{uno}(x) = (S \circ Z)(x)$ con entrada $\{2\}$.
+* **Llamada 3:** `ZeroFunction` evaluada en $Z(2)$, devolviendo $0$.
+* **Llamada 4:** `SuccessorFunction` evaluada en la función exterior $S(0)$, devolviendo $1$.
 
+**Total de llamadas:** 4.
 
-4. **Potencia:** $\text{potencia}(x, y) = x^y$
+### 2. Traza para `potencia(2, 1)` -> 16 Llamadas
 
+Definición formal dividida en sus dos ramas (caso recursivo y caso base de cada función involucrada):
 
-* $\text{potencia}(x, 0) = g(x) = \text{uno}(x) = 1$
+```text
+ 1             9    6   7       8
+ ↓             ↓    ↓   ↓       ↓
+power(2, 1) = mult  ∘  (P_1^3 × P_3^3)(2, 0, power(2, 0))
+                                               ↓ (Llamada 2)
+                                           power(2, 0) = S  ∘  Z(2)
+                                                         ↓  ↓  ↓
+                                                         5  3  4
 
+ 9             15   12  13      14
+ ↓             ↓    ↓   ↓       ↓
+mult(2, 1)  = suma  ∘  (P_1^3 × P_3^3)(2, 0, mult(2, 0))
+                                               ↓ (Llamada 10)
+                                           mult(2, 0)  = Z(2)
+                                                         ↓
+                                                         11
 
-* $\text{potencia}(x, S(y)) = h(x, y, \text{potencia}(x, y)) = \text{mult}(P_1^3, P_3^3)(x, y, \text{potencia}(x, y))$
+ 15           16
+ ↓            ↓
+suma(2, 0)  = P_1^1(2)
+```
 
+Desglose cronológico de ejecución:
 
+* **Llamada 1:** `PowerFunction -> PrimitiveRecursionFunction` evalúa `(2, 1)`. Para calcular el paso inductivo requiere previamente el valor del acumulador anterior $\text{potencia}(2, 0)$.
+* **Llamada 2:** `PrimitiveRecursionFunction` evalúa recursivamente `(2, 0)`. Como $y = 0$, evalúa su ecuación límite $g(2) = (S \circ Z)(2)$.
+* **Llamada 3:** `CompositionFunction` de la constante uno sobre $\{2\}$.
+* **Llamada 4:** `ZeroFunction` calcula $Z(2) = 0$.
+* **Llamada 5:** `SuccessorFunction` calcula $S(0) = 1$. (Fin del caso base: $\text{potencia}(2, 0) = 1$).
+* **Llamada 6:** `CompositionFunction` del paso inductivo de la potencia $h(2, 0, 1)$.
+* **Llamada 7:** `ProjectionFunction` ($P_1^3$) sobre $(2, 0, 1)$ devuelve $2$.
+* **Llamada 8:** `ProjectionFunction` ($P_3^3$) sobre $(2, 0, 1)$ devuelve $1$.
+* **Llamada 9:** `MultiplicationFunction -> PrimitiveRecursionFunction` evalúa `(2, 1)`. Requiere primero el acumulador $\text{mult}(2, 0)$.
+* **Llamada 10:** `PrimitiveRecursionFunction` evalúa recursivamente `(2, 0)`. Como $y = 0$, evalúa su ecuación límite $g(2) = Z(2)$.
+* **Llamada 11:** `ZeroFunction` calcula $Z(2) = 0$. (Fin del caso base: $\text{mult}(2, 0) = 0$).
+* **Llamada 12:** `CompositionFunction` del paso inductivo de la multiplicación $h(2, 0, 0)$.
+* **Llamada 13:** `ProjectionFunction` ($P_1^3$) sobre $(2, 0, 0)$ devuelve $2$.
+* **Llamada 14:** `ProjectionFunction` ($P_3^3$) sobre $(2, 0, 0)$ devuelve $0$.
+* **Llamada 15:** `SumFunction -> PrimitiveRecursionFunction` evalúa `(2, 0)`. Como $y = 0$, invoca su ecuación límite $g(2) = P_1^1(2)$.
+* **Llamada 16:** `ProjectionFunction` ($P_1^1$) evalúa $\{2\}$ y devuelve $2$.
 
+**Total de llamadas:** 16.
 
-
-## Arquitectura y Diseño Orientado a Objetos
-
-El diseño sigue una arquitectura modular en C++ estándar (`include/`, `src/`, `build/`), desacoplando responsabilidades entre sus componentes:
-
-1. **`PrimitiveRecursiveFunction`**: Clase base abstracta pura que define la interfaz común de evaluación (`Evaluar()`), consulta de aridad (`Aridad()`) y el registro centralizado del contador de llamadas (`GetContadorLlamadas()`, `ReiniciarContadorLlamadas()`). Contiene además las implementaciones de los bloques básicos (`ZeroFunction`, `SuccessorFunction`, `ProjectionFunction`) y los operadores de orden superior (`CompositionFunction`, `PrimitiveRecursionFunction`).
-
-
-2. **`SumFunction`**: Subclase no básica que encapsula la construcción por recursión primitiva de la operación de suma formal a partir de $P_1^1$ y $S \circ P_3^3$.
-
-
-3. **`MultiplicationFunction`**: Subclase no básica que implementa la multiplicación formal reutilizando `SumFunction` mediante recursión primitiva a partir de $Z$ y $\text{suma} \circ (P_1^3 \times P_3^3)$.
-4. **`PowerFunction`**: Clase principal que materializa la función $x^y$ componiendo la multiplicación recursivamente a partir del caso base $\text{uno}(x) = S(Z(x))$ y el paso $\text{mult} \circ (P_1^3 \times P_3^3)$.
-
-
-5. **`ProgramOptions`**: Estructura y módulo de parseo (`ParseArguments()`) encargado de procesar y validar rigurosamente las opciones de la línea de comandos (`-x` e `-y`) comprobando no negatividad y formatos numéricos naturales.
-
-
-6. **`main-auxiliary-functions`**: Módulo con utilidades para el despliegue del manual de ayuda (`PrintHelp()`), la solicitud interactiva en caso de parámetros omitidos (`SolicitarValoresFaltantes()`) y el formateo de salida en consola (`ImprimirResultados()`).
-
-
+---
 
 ## Estructura de Directorios
 
@@ -126,21 +142,21 @@ El diseño sigue una arquitectura modular en C++ estándar (`include/`, `src/`, 
 │   ├── primitive-recursive-function.cc
 │   ├── program-options.cc
 │   └── sum-function.cc
-├── Makefile               # Fichero de automatización de la compilación
+├── Makefile               # Automatización de la compilación
+├── ejecutar_pruebas.sh    # Script que ejecuta una serie de pruebas
 └── README.md              # Documentación del proyecto
-
 ```
 
 ## Compilación
 
-El proyecto se compila mediante `make` utilizando las directivas de optimización y avisos estándar (`-std=c++17 -Wall -Wextra`):
+El proyecto se compila mediante `make` utilizando las directivas estándar C++17:
 
 ```bash
 make
 
 ```
 
-Esto generará el ejecutable `p03-fpr` en la raíz del proyecto. Para eliminar los ficheros intermedios y reconstruir el proyecto:
+Esto generará el ejecutable `p03-fpr` en la raíz del proyecto. Para limpiar binarios previos:
 
 ```bash
 make clean
@@ -149,8 +165,6 @@ make clean
 
 ## Modo de Uso y Opciones de Línea de Comandos
 
-El programa principal acepta los parámetros de la operación por línea de comandos conforme al guion:
-
 ```bash
 ./p03-fpr [-x <base>] [-y <exponente>]
 
@@ -158,65 +172,24 @@ El programa principal acepta los parámetros de la operación por línea de coma
 
 ### Descripción de Opciones:
 
-* **`-x <n>`** *(Opcional)*: Número natural correspondiente a la base de la potencia.
+* **`-x <n>`** *(Opcional)*: Número natural correspondiente a la base.
 
 
-* **`-y <n>`** *(Opcional)*: Número natural correspondiente al exponente de la potencia.
+* **`-y <n>`** *(Opcional)*: Número natural correspondiente al exponente.
 
 
-* **`--help`**: Muestra el mensaje informativo de ayuda con la sintaxis y finaliza la ejecución.
+* **`--help`**: Despliega el manual de ayuda de la aplicación.
 
-> **Nota:** Si se omite alguna de las opciones (`-x` o `-y`), el programa solicitará interactivamente por teclado los valores numéricos naturales restantes antes de proceder a la evaluación.
+
+
+> Si se omite alguna de las opciones, el programa solicitará interactivamente por consola los valores naturales restantes.
+> 
+> 
 
 ### Ejemplos de Ejecución:
 
-1. **Paso de parámetros completo por consola:**
-
 ```bash
+./p03-fpr -x 2 -y 0
+./p03-fpr -x 2 -y 1
 ./p03-fpr -x 2 -y 4
-
 ```
-
-2. **Entrada interactiva por omisión de banderas:**
-
-```bash
-./p03-fpr
-Introduce el valor natural de la base (x >= 0): 3
-Introduce el valor natural del exponente (y >= 0): 2
-
-```
-
-3. **Ejecución parcial combinada:**
-
-```bash
-./p03-fpr -x 5
-Introduce el valor natural del exponente (y >= 0): 3
-
-```
-
-## Ejemplo de Salida del Programa
-
-Tras llevar a cabo la evaluación respetando la cadena formal de llamadas a funciones primitivas recursivas, el programa presenta la siguiente estructura de salida:
-
-```text
-=== Parámetros de ejecución configurados ===
-  - Base (x):      2
-  - Exponente (y): 4
-============================================
-
-=== RESULTADOS DEL CÁLCULO (FPR) ===
-  Operación:             potencia(2, 4) = 2^4
-  Resultado obtenido:    16
-  Llamadas a funciones:  74
-====================================
-
-```
-
-## Tratamiento y Control de Errores
-
-El sistema cuenta con mecanismos de control y excepciones para garantizar la integridad de las ejecuciones matemáticas:
-
-* **Validación de Línea de Comandos:** Detección de banderas duplicadas, ausencia de valores asociados o argumentos malformados no reconocidos.
-* **Validación de Tipos Naturales:** Comprobación estricta de que las entradas pertenezcan a $\mathbb{N}$ (enteros no negativos), impidiendo valores con signo negativo o caracteres no alfanuméricos mediante control de conversiones numéricas (`std::stoull`).
-* **Comprobación de Aridad en Composición y Recursión:** Verificación estricta de coherencia dimensional entre las entradas recibidas y la aridad declarada en cada nivel del árbol funcional ($g$, $h_i$).
-* **Control de Flujo Interactivo:** Recuperación y limpieza de búfer (`std::cin.clear()`, `std::cin.ignore()`) ante entradas inválidas introducidas por teclado.

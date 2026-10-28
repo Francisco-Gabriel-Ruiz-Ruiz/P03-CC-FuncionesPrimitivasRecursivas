@@ -31,7 +31,6 @@ SumFunction::SumFunction() {
 }
 
 Natural SumFunction::Evaluar(const std::vector<Natural>& args) {
-  //RegistrarLlamada();
   //std::cout << "SumFunction -> ";
   if (args.size() != Aridad()) {
     throw std::invalid_argument("SumFunction requiere exactamente 2 argumentos (x, y).");

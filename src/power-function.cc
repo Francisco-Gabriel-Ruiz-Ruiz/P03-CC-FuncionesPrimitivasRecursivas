@@ -38,7 +38,6 @@ PowerFunction::PowerFunction() {
 }
 
 Natural PowerFunction::Evaluar(const std::vector<Natural>& args) {
-  //RegistrarLlamada();
   //std::cout << "PowerFunction -> ";
   if (args.size() != Aridad()) {
     throw std::invalid_argument("PowerFunction requiere 2 argumentos: (base, exponente).");
