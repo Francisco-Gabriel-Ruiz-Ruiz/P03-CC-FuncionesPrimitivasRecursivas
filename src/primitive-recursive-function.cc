@@ -22,7 +22,7 @@
 
 Natural ZeroFunction::Evaluar(const std::vector<Natural>& args) {
   RegistrarLlamada();
-  std::cout << "ZeroFunction  es la nº " << GetContadorLlamadas() << std::endl;
+  //std::cout << "ZeroFunction  es la nº " << GetContadorLlamadas() << std::endl;
   if (args.size() != Aridad()) {
     throw std::invalid_argument("ZeroFunction requiere exactamente 1 argumento.");
   }
@@ -35,7 +35,7 @@ Natural ZeroFunction::Evaluar(const std::vector<Natural>& args) {
 
 Natural SuccessorFunction::Evaluar(const std::vector<Natural>& args) {
   RegistrarLlamada();
-  std::cout << "SuccessorFunction  es la nº " << GetContadorLlamadas() << std::endl;
+  //std::cout << "SuccessorFunction  es la nº " << GetContadorLlamadas() << std::endl;
   if (args.size() != Aridad()) {
     throw std::invalid_argument("SuccessorFunction requiere exactamente 1 argumento.");
   }
@@ -55,7 +55,7 @@ ProjectionFunction::ProjectionFunction(size_t aridad, size_t indice)
 
 Natural ProjectionFunction::Evaluar(const std::vector<Natural>& args) {
   RegistrarLlamada();
-  std::cout << "ProjectionFunction  es la nº " << GetContadorLlamadas() << std::endl;
+  //std::cout << "ProjectionFunction  es la nº " << GetContadorLlamadas() << std::endl;
   if (args.size() != aridad_) {
     throw std::invalid_argument("Número de argumentos no coincide con la aridad de la proyección.");
   }
@@ -86,7 +86,7 @@ CompositionFunction::CompositionFunction(
 
 Natural CompositionFunction::Evaluar(const std::vector<Natural>& args) {
   RegistrarLlamada();
-  std::cout << "CompositionFunction  es la nº " << GetContadorLlamadas() << std::endl;
+  //std::cout << "CompositionFunction  es la nº " << GetContadorLlamadas() << std::endl;
   if (args.size() != aridad_) {
     throw std::invalid_argument("Número de argumentos incorrecto en CompositionFunction.");
   }
@@ -127,7 +127,7 @@ PrimitiveRecursionFunction::PrimitiveRecursionFunction(
 
 Natural PrimitiveRecursionFunction::Evaluar(const std::vector<Natural>& args) {
   RegistrarLlamada();
-  std::cout << " (PrimitiveRecursionFunction) es la nº " << GetContadorLlamadas() << std::endl;
+  //std::cout << " PrimitiveRecursionFunction es la nº " << GetContadorLlamadas() << std::endl;
   if (args.size() != aridad_) {
     throw std::invalid_argument("Número de argumentos incorrecto en PrimitiveRecursionFunction.");
   }
