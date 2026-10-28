@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+# Universidad de La Laguna
+# Escuela Superior de Ingeniería y Tecnología
+# Grado en Ingeniería Informática
+# Complejidad Computacional 2026-2027
+# 
+# @file ejecutar_pruebas.sh
+# @author Francisco Gabriel Ruiz Ruiz
+# @date 28 Oct 2026
+# @brief Script de pruebas automatizadas para medir el número de llamadas recursivas y verificar los resultados de la función primitiva recursiva de la potencia (p03-fpr).
+
 EXECUTABLE="./p03-fpr"
 OUTPUT_FILE="resultados.txt"
 
@@ -49,13 +59,14 @@ for par in "${PARES[@]}"; do
     # Ejecuta el programa capturando la salida estándar
     salida=$("$EXECUTABLE" -x "$x" -y "$y" 2>/dev/null)
     
-    # Extrae el número tras 'Llamadas a funciones:'
+    # Extrae el resultado y las llamadas a funciones
+    resultado=$(echo "$salida" | grep "Resultado obtenido:" | awk -F: '{gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2}')
     llamadas=$(echo "$salida" | grep "Llamadas a funciones:" | awk -F: '{gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2}')
     
-    if [[ -n "$llamadas" ]]; then
-        linea="x=$x, y=$y -> $llamadas llamadas"
+    if [[ -n "$llamadas" && -n "$resultado" ]]; then
+        linea="x=$x, y=$y -> resultado = $resultado, llamadas = $llamadas"
         echo "$linea" >> "$OUTPUT_FILE"
-        echo "OK ($llamadas llamadas)"
+        echo "OK (resultado=$resultado, llamadas=$llamadas)"
     else
         echo "Error o finalización anómala (Segmentation fault / timeout)"
         echo "x=$x, y=$y -> ERROR" >> "$OUTPUT_FILE"

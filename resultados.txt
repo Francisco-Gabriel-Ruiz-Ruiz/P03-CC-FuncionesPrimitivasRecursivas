@@ -1,23 +1,23 @@
-x=2, y=0 -> 4 llamadas
-x=3, y=0 -> 4 llamadas
-x=2, y=1 -> 16 llamadas
-x=2, y=2 -> 42 llamadas
-x=2, y=3 -> 120 llamadas
-x=2, y=7 -> 22144 llamadas
-x=2, y=10 -> 1400210 llamadas
-x=2, y=12 -> 22377886 llamadas
-x=3, y=1 -> 16 llamadas
-x=3, y=2 -> 76 llamadas
-x=3, y=3 -> 568 llamadas
-x=3, y=7 -> 3587272 llamadas
-x=4, y=2 -> 142 llamadas
-x=4, y=5 -> 558592 llamadas
-x=5, y=3 -> 6408 llamadas
-x=5, y=5 -> 4065920 llamadas
-x=6, y=2 -> 418 llamadas
-x=6, y=5 -> 20721964 llamadas
-x=10, y=4 -> 20186494 llamadas
-x=1, y=40 -> 484 llamadas
-x=1, y=400 -> 4804 llamadas
-x=1, y=4000 -> 48004 llamadas
-x=1, y=8000 -> 96004 llamadas
+x=2, y=0 -> resultado = 1, llamadas = 4
+x=3, y=0 -> resultado = 1, llamadas = 4
+x=2, y=1 -> resultado = 2, llamadas = 16
+x=2, y=2 -> resultado = 4, llamadas = 42
+x=2, y=3 -> resultado = 8, llamadas = 120
+x=2, y=7 -> resultado = 128, llamadas = 22144
+x=2, y=10 -> resultado = 1024, llamadas = 1400210
+x=2, y=12 -> resultado = 4096, llamadas = 22377886
+x=3, y=1 -> resultado = 3, llamadas = 16
+x=3, y=2 -> resultado = 9, llamadas = 76
+x=3, y=3 -> resultado = 27, llamadas = 568
+x=3, y=7 -> resultado = 2187, llamadas = 3587272
+x=4, y=2 -> resultado = 16, llamadas = 142
+x=4, y=5 -> resultado = 1024, llamadas = 558592
+x=5, y=3 -> resultado = 125, llamadas = 6408
+x=5, y=5 -> resultado = 3125, llamadas = 4065920
+x=6, y=2 -> resultado = 36, llamadas = 418
+x=6, y=5 -> resultado = 7776, llamadas = 20721964
+x=10, y=4 -> resultado = 10000, llamadas = 20186494
+x=1, y=40 -> resultado = 1, llamadas = 484
+x=1, y=400 -> resultado = 1, llamadas = 4804
+x=1, y=4000 -> resultado = 1, llamadas = 48004
+x=1, y=8000 -> resultado = 1, llamadas = 96004
