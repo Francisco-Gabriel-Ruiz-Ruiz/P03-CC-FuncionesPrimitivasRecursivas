@@ -39,6 +39,14 @@ Conforme a las definiciones formales de la teoría de la computabilidad, la arqu
      * $\text{potencia}(x, 0) = g(x) = S \circ Z(x)$
      * $\text{potencia}(x, S(y)) = h(x, y, \text{potencia}(x, y)) = \text{mult} \circ (P_1^3 \times P_3^3)(x, y, \text{potencia}(x, y))$
 
+### Nota Teórica sobre el Operador de Composición / Combinación
+
+Desde una perspectiva formal en la teoría de la computabilidad, la **composición** no es una función primitiva recursiva en sí misma, sino un **operador de clausura** que transforma una tupla de funciones $(g, h_1, \dots, h_m)$ en una nueva función resultante $f$.
+
+En el diseño orientado a objetos implementado:
+1. **Patrón Composite:** La clase `CompositionFunction` materializa la función resultante generada por dicho operador. Por ello, hereda de la interfaz abstracta `PrimitiveRecursiveFunction`, permitiendo que la función compuesta resultante posea aridad propia y pueda ser evaluada o suministrada a su vez como componente base o de paso en esquemas de recursión primitiva.
+2. **Criterio de Evaluación:** Si bien representa estructuralmente un operador, su invocación en el modelo computacional coordina la bifurcación de parámetros hacia las funciones interiores $h_i$ y la redirección de resultados hacia la función exterior $g$.
+
 ## Arquitectura y Modelo de Conteo de Llamadas
 
 ### Criterio de Registro de Llamadas
@@ -53,46 +61,45 @@ Siguiendo la notación manuscrita desarrollada durante el análisis de la práct
 
 *Nota: para poder ver los mensajes que emite el programa similar a los detallados a continuación, se puede descomentar los std::couts en los ficheros `multiplication-function.cc`, `power-function.cc`. `primitive-recursive-function.cc` y `sum-function.cc`.*
 
-### 1. Traza para `potencia(2, 0)` -> 4 Llamadas
+### 1. Traza para `potencia(2, 0)` -> 3 Llamadas
 
 Definición formal:
 
 ```text
-         1                      4  2  3
-         ↓                      ↓  ↓  ↓
+         1                      3     2
+         ↓                      ↓     ↓
         power(2, 0) = g(2)  =   S  ∘  Z(2)
 
 ```
 
 * **Llamada 1:** `PowerFunction -> PrimitiveRecursionFunction` sobre `(2, 0)`. Al ser $y = 0$, se dirige inmediatamente a la ecuación límite $g(2)$.
-* **Llamada 2:** `CompositionFunction` asociada al caso base $\text{uno}(x) = (S \circ Z)(x)$ con entrada $\{2\}$.
-* **Llamada 3:** `ZeroFunction` evaluada en $Z(2)$, devolviendo $0$.
-* **Llamada 4:** `SuccessorFunction` evaluada en la función exterior $S(0)$, devolviendo $1$.
+* **Llamada 2:** `ZeroFunction` evaluada en $Z(2)$, devolviendo $0$.
+* **Llamada 3:** `SuccessorFunction` evaluada en la función exterior $S(0)$, devolviendo $1$.
 
-**Total de llamadas:** 4.
+**Total de llamadas:** 3.
 
-### 2. Traza para `potencia(2, 1)` -> 16 Llamadas
+### 2. Traza para `potencia(2, 1)` -> 13 Llamadas
 
 Definición formal dividida en sus dos ramas (caso recursivo y caso base de cada función involucrada):
 
 ```text
- 1             9    6   7       8
- ↓             ↓    ↓   ↓       ↓
+ 1             7        5       6
+ ↓             ↓        ↓       ↓
 power(2, 1) = mult  ∘  (P_1^3 × P_3^3)(2, 0, power(2, 0))
                                                ↓ (Llamada 2)
                                            power(2, 0) = S  ∘  Z(2)
-                                                         ↓  ↓  ↓
-                                                         5  3  4
+                                                         ↓     ↓
+                                                         4     3
 
- 9             15   12  13      14
- ↓             ↓    ↓   ↓       ↓
+ 7             12       10      11
+ ↓             ↓        ↓       ↓
 mult(2, 1)  = suma  ∘  (P_1^3 × P_3^3)(2, 0, mult(2, 0))
-                                               ↓ (Llamada 10)
+                                               ↓ (Llamada 8)
                                            mult(2, 0)  = Z(2)
                                                          ↓
-                                                         11
+                                                         9
 
- 15           16
+ 12           13
  ↓            ↓
 suma(2, 0)  = P_1^1(2)
 ```
@@ -101,24 +108,19 @@ Desglose cronológico de ejecución:
 
 * **Llamada 1:** `PowerFunction -> PrimitiveRecursionFunction` evalúa `(2, 1)`. Para calcular el paso inductivo requiere previamente el valor del acumulador anterior $\text{potencia}(2, 0)$.
 * **Llamada 2:** `PrimitiveRecursionFunction` evalúa recursivamente `(2, 0)`. Como $y = 0$, evalúa su ecuación límite $g(2) = (S \circ Z)(2)$.
-* **Llamada 3:** `CompositionFunction` de la constante uno sobre $\{2\}$.
-* **Llamada 4:** `ZeroFunction` calcula $Z(2) = 0$.
-* **Llamada 5:** `SuccessorFunction` calcula $S(0) = 1$. (Fin del caso base: $\text{potencia}(2, 0) = 1$).
-* **Llamada 6:** `CompositionFunction` del paso inductivo de la potencia $h(2, 0, 1)$.
-* **Llamada 7:** `ProjectionFunction` ($P_1^3$) sobre $(2, 0, 1)$ devuelve $2$.
-* **Llamada 8:** `ProjectionFunction` ($P_3^3$) sobre $(2, 0, 1)$ devuelve $1$.
-* **Llamada 9:** `MultiplicationFunction -> PrimitiveRecursionFunction` evalúa `(2, 1)`. Requiere primero el acumulador $\text{mult}(2, 0)$.
-* **Llamada 10:** `PrimitiveRecursionFunction` evalúa recursivamente `(2, 0)`. Como $y = 0$, evalúa su ecuación límite $g(2) = Z(2)$.
-* **Llamada 11:** `ZeroFunction` calcula $Z(2) = 0$. (Fin del caso base: $\text{mult}(2, 0) = 0$).
-* **Llamada 12:** `CompositionFunction` del paso inductivo de la multiplicación $h(2, 0, 0)$.
-* **Llamada 13:** `ProjectionFunction` ($P_1^3$) sobre $(2, 0, 0)$ devuelve $2$.
-* **Llamada 14:** `ProjectionFunction` ($P_3^3$) sobre $(2, 0, 0)$ devuelve $0$.
-* **Llamada 15:** `SumFunction -> PrimitiveRecursionFunction` evalúa `(2, 0)`. Como $y = 0$, invoca su ecuación límite $g(2) = P_1^1(2)$.
-* **Llamada 16:** `ProjectionFunction` ($P_1^1$) evalúa $\{2\}$ y devuelve $2$.
+* **Llamada 3:** `ZeroFunction` calcula $Z(2) = 0$.
+* **Llamada 4:** `SuccessorFunction` calcula $S(0) = 1$. (Fin del caso base: $\text{potencia}(2, 0) = 1$).
+* **Llamada 5:** `ProjectionFunction` ($P_1^3$) sobre $(2, 0, 1)$ devuelve $2$.
+* **Llamada 6:** `ProjectionFunction` ($P_3^3$) sobre $(2, 0, 1)$ devuelve $1$.
+* **Llamada 7:** `MultiplicationFunction -> PrimitiveRecursionFunction` evalúa `(2, 1)`. Requiere primero el acumulador $\text{mult}(2, 0)$.
+* **Llamada 8:** `PrimitiveRecursionFunction` evalúa recursivamente `(2, 0)`. Como $y = 0$, evalúa su ecuación límite $g(2) = Z(2)$.
+* **Llamada 9:** `ZeroFunction` calcula $Z(2) = 0$. (Fin del caso base: $\text{mult}(2, 0) = 0$).
+* **Llamada 10:** `ProjectionFunction` ($P_1^3$) sobre $(2, 0, 0)$ devuelve $2$.
+* **Llamada 11:** `ProjectionFunction` ($P_3^3$) sobre $(2, 0, 0)$ devuelve $0$.
+* **Llamada 12:** `SumFunction -> PrimitiveRecursionFunction` evalúa `(2, 0)`. Como $y = 0$, invoca su ecuación límite $g(2) = P_1^1(2)$.
+* **Llamada 13:** `ProjectionFunction` ($P_1^1$) evalúa $\{2\}$ y devuelve $2$.
 
-**Total de llamadas:** 16.
-
----
+**Total de llamadas:** 13.
 
 ## Estructura de Directorios
 

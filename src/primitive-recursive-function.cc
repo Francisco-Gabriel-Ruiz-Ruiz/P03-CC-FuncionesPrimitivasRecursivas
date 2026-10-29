@@ -122,8 +122,7 @@ CompositionFunction::CompositionFunction(
  * @throw std::invalid_argument Si la aridad de args no coincide con la aridad configurada.
  */
 Natural CompositionFunction::Evaluar(const std::vector<Natural>& args) {
-  RegistrarLlamada();
-  //std::cout << "CompositionFunction  es la nº " << GetContadorLlamadas() << std::endl;
+  //std::cout << "CompositionFunction llamada" << std::endl;
   if (args.size() != aridad_) {
     throw std::invalid_argument("Número de argumentos incorrecto en CompositionFunction.");
   }
