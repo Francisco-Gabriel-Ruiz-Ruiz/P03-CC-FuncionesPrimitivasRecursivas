@@ -6,7 +6,7 @@
  *
  * @file power-function.cc
  * @author Francisco Gabriel Ruiz Ruiz
- * @date 24 Oct 2026
+ * @date 24 Oct 2026 (Modificado)
  * @brief Implementación de la función potencia como FPR a partir de la
  *        multiplicación y la función constante uno.
  */
@@ -17,6 +17,10 @@
 #include <iostream>
 #include <stdexcept>
 
+/**
+ * @brief Construye la función potencia configurando el caso base uno(x) = S(Z(x))
+ *        y el paso inductivo h(x, y, potencia(x, y)) = mult o (P_1^3, P_3^3)(x, y, potencia(x, y)).
+ */
 PowerFunction::PowerFunction() {
   // Caso base: potencia(x, 0) = uno(x) = S(Z(x)) = 1
   auto zero = std::make_shared<ZeroFunction>();
@@ -37,6 +41,12 @@ PowerFunction::PowerFunction() {
   potencia_fpr_ = std::make_shared<PrimitiveRecursionFunction>(funcion_uno, h_potencia, 2);
 }
 
+/**
+ * @brief Evalúa la función potencia comprobando la aridad y delegando el cómputo en potencia_fpr_.
+ * @param args Vector de argumentos naturales. Debe contener exactamente 2 valores: (base, exponente).
+ * @return Natural Resultado de la potencia.
+ * @throw std::invalid_argument Si la cantidad de argumentos difiere de 2.
+ */
 Natural PowerFunction::Evaluar(const std::vector<Natural>& args) {
   //std::cout << "PowerFunction -> ";
   if (args.size() != Aridad()) {

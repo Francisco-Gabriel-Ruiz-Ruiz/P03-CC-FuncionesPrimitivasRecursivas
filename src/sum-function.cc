@@ -6,7 +6,7 @@
  *
  * @file sum-function.cc
  * @author Francisco Gabriel Ruiz Ruiz
- * @date 24 Oct 2026
+ * @date 24 Oct 2026 (Modificado)
  * @brief Implementación formal de la función suma(x, y) como FPR a partir de
  *        la ecuación límite suma(x, 0) = P_1^1(x) y el paso suma(x, S(y)) = S(P_3^3(x, y, suma(x, y))).
  */
@@ -16,6 +16,10 @@
 #include <iostream>
 #include <stdexcept>
 
+/**
+ * @brief Construye la función suma configurando el caso base g(x) = P_1^1(x)
+ *        y el paso inductivo h(x, y, suma(x, y)) = S(P_3^3(x, y, suma(x, y))).
+ */
 SumFunction::SumFunction() {
   // Caso base: suma(x, 0) = g(x) = P_1^1(x)
   auto g_suma = std::make_shared<ProjectionFunction>(1, 1);
@@ -30,6 +34,12 @@ SumFunction::SumFunction() {
   suma_fpr_ = std::make_shared<PrimitiveRecursionFunction>(g_suma, h_suma, 2);
 }
 
+/**
+ * @brief Evalúa la función suma comprobando la aridad y delegando el cómputo en suma_fpr_.
+ * @param args Vector de argumentos naturales. Debe contener exactamente 2 valores (x, y).
+ * @return Natural Resultado de la suma.
+ * @throw std::invalid_argument Si la cantidad de argumentos difiere de 2.
+ */
 Natural SumFunction::Evaluar(const std::vector<Natural>& args) {
   //std::cout << "SumFunction -> ";
   if (args.size() != Aridad()) {

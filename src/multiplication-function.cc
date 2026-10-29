@@ -6,7 +6,7 @@
  *
  * @file multiplication-function.cc
  * @author Francisco Gabriel Ruiz Ruiz
- * @date 24 Oct 2026
+ * @date 24 Oct 2026 (Modificado)
  * @brief Implementación formal de la multiplicación mult(x, y) como FPR a partir de
  *        mult(x, 0) = Z(x) y el paso mult(x, S(y)) = suma(x, mult(x, y)).
  */
@@ -16,6 +16,10 @@
 #include <iostream>
 #include <stdexcept>
 
+/**
+ * @brief Construye la función multiplicación configurando el caso base g(x) = Z(x)
+ *        y el paso inductivo h(x, y, mult(x, y)) = suma o (P_1^3, P_3^3)(x, y, mult(x, y)).
+ */
 MultiplicationFunction::MultiplicationFunction() {
   // Caso base: mult(x, 0) = g(x) = Z(x) = 0
   auto g_mult = std::make_shared<ZeroFunction>();
@@ -33,6 +37,12 @@ MultiplicationFunction::MultiplicationFunction() {
   mult_fpr_ = std::make_shared<PrimitiveRecursionFunction>(g_mult, h_mult, 2);
 }
 
+/**
+ * @brief Evalúa la función multiplicación comprobando la aridad y delegando el cálculo en mult_fpr_.
+ * @param args Vector de argumentos naturales. Debe contener exactamente 2 valores (x, y).
+ * @return Natural Resultado de la multiplicación.
+ * @throw std::invalid_argument Si la cantidad de argumentos difiere de 2.
+ */
 Natural MultiplicationFunction::Evaluar(const std::vector<Natural>& args) {
   //std::cout << "MultiplicationFunction -> ";
   if (args.size() != Aridad()) {

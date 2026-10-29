@@ -6,7 +6,7 @@
  *
  * @file primitive-recursive-function.cc
  * @author Francisco Gabriel Ruiz Ruiz
- * @date 24 Oct 2026
+ * @date 24 Oct 2026 (Modificado)
  * @brief Implementación de las funciones básicas y los esquemas formales
  *        de combinación/composición y recursión primitiva.
  */
@@ -20,6 +20,12 @@
 // FUNCIÓN CERO: Z(x) = 0
 // =============================================================================
 
+/**
+ * @brief Evalúa la función elemental Cero Z(x) = 0.
+ * @param args Vector con los argumentos de entrada. Requiere exactamente 1 argumento.
+ * @return Natural Siempre 0.
+ * @throw std::invalid_argument Si la cantidad de argumentos difiere de 1.
+ */
 Natural ZeroFunction::Evaluar(const std::vector<Natural>& args) {
   RegistrarLlamada();
   //std::cout << "ZeroFunction  es la nº " << GetContadorLlamadas() << std::endl;
@@ -33,6 +39,12 @@ Natural ZeroFunction::Evaluar(const std::vector<Natural>& args) {
 // FUNCIÓN SUCESOR: S(x) = x + 1
 // =============================================================================
 
+/**
+ * @brief Evalúa la función elemental Sucesor S(x) = x + 1.
+ * @param args Vector con los argumentos de entrada. Requiere exactamente 1 argumento.
+ * @return Natural El valor natural incrementado en uno.
+ * @throw std::invalid_argument Si la cantidad de argumentos difiere de 1.
+ */
 Natural SuccessorFunction::Evaluar(const std::vector<Natural>& args) {
   RegistrarLlamada();
   //std::cout << "SuccessorFunction  es la nº " << GetContadorLlamadas() << std::endl;
@@ -46,6 +58,12 @@ Natural SuccessorFunction::Evaluar(const std::vector<Natural>& args) {
 // FUNCIÓN PROYECCIÓN: P_i^n(x_1, ..., x_n) = x_i
 // =============================================================================
 
+/**
+ * @brief Construye una función Proyección verificando que los índices respeten 1 <= indice <= aridad.
+ * @param aridad Número total de parámetros de la función (n >= 1).
+ * @param indice Índice 1-based del parámetro a proyectar (i).
+ * @throw std::invalid_argument Si aridad es 0 o si el índice no pertenece al intervalo [1, aridad].
+ */
 ProjectionFunction::ProjectionFunction(size_t aridad, size_t indice)
     : aridad_{aridad}, indice_{indice} {
   if (aridad == 0 || indice == 0 || indice > aridad) {
@@ -53,6 +71,12 @@ ProjectionFunction::ProjectionFunction(size_t aridad, size_t indice)
   }
 }
 
+/**
+ * @brief Evalúa la función Proyección devolviendo el elemento en la posición configurada.
+ * @param args Vector con los parámetros naturales (longitud esperada: aridad_).
+ * @return Natural Valor del parámetro args[indice_ - 1].
+ * @throw std::invalid_argument Si el tamaño del vector args no coincide con aridad_.
+ */
 Natural ProjectionFunction::Evaluar(const std::vector<Natural>& args) {
   RegistrarLlamada();
   //std::cout << "ProjectionFunction  es la nº " << GetContadorLlamadas() << std::endl;
@@ -66,6 +90,13 @@ Natural ProjectionFunction::Evaluar(const std::vector<Natural>& args) {
 // ESQUEMA DE COMPOSICIÓN: f(x) = g(h_1(x), ..., h_m(x))
 // =============================================================================
 
+/**
+ * @brief Construye el esquema formal de composición comprobando la validez y correspondencia dimensional de g y {h_i}.
+ * @param g Función exterior receptora de los resultados intermedios.
+ * @param h Vector de funciones interiores generadoras de los parámetros para g.
+ * @throw std::invalid_argument Si algún puntero es nulo, h está vacío, la aridad de g no coincide con el tamaño de h,
+ *                              o alguna de las funciones en h difiere en aridad con respecto a las demás.
+ */
 CompositionFunction::CompositionFunction(
     std::shared_ptr<PrimitiveRecursiveFunction> g,
     std::vector<std::shared_ptr<PrimitiveRecursiveFunction>> h)
@@ -84,6 +115,12 @@ CompositionFunction::CompositionFunction(
   }
 }
 
+/**
+ * @brief Evalúa la composición ejecutando primero cada función interior y suministrando sus salidas a la función g.
+ * @param args Vector de argumentos naturales con aridad coincidente con aridad_.
+ * @return Natural Resultado de la evaluación g(h_1(args), ..., h_m(args)).
+ * @throw std::invalid_argument Si la aridad de args no coincide con la aridad configurada.
+ */
 Natural CompositionFunction::Evaluar(const std::vector<Natural>& args) {
   RegistrarLlamada();
   //std::cout << "CompositionFunction  es la nº " << GetContadorLlamadas() << std::endl;
@@ -102,6 +139,13 @@ Natural CompositionFunction::Evaluar(const std::vector<Natural>& args) {
 // ESQUEMA DE RECURSIÓN PRIMITIVA
 // =============================================================================
 
+/**
+ * @brief Construye el esquema de recursión primitiva validando las aridades exigidas por la definición formal.
+ * @param g Función base para la ecuación límite cuando la última variable es 0 (aridad n - 1).
+ * @param h Función de paso inductivo (aridad n + 1).
+ * @param aridad Aridad global de la función que se define (n >= 1).
+ * @throw std::invalid_argument Si la aridad es 0 o si las aridades de g o h no satisfacen el esquema formal.
+ */
 PrimitiveRecursionFunction::PrimitiveRecursionFunction(
     std::shared_ptr<PrimitiveRecursiveFunction> g,
     std::shared_ptr<PrimitiveRecursiveFunction> h,
@@ -125,6 +169,12 @@ PrimitiveRecursionFunction::PrimitiveRecursionFunction(
   }
 }
 
+/**
+ * @brief Evalúa la función por recursión primitiva sobre la última componente de args (variable y).
+ * @param args Vector con los argumentos naturales (longitud coincidente con aridad_).
+ * @return Natural Resultado devuelto por el caso base g o por la aplicación del paso recursivo h.
+ * @throw std::invalid_argument Si el tamaño del vector args no es igual a aridad_.
+ */
 Natural PrimitiveRecursionFunction::Evaluar(const std::vector<Natural>& args) {
   RegistrarLlamada();
   //std::cout << " PrimitiveRecursionFunction es la nº " << GetContadorLlamadas() << std::endl;
